@@ -1,6 +1,13 @@
 import { AuthService } from './../services/auth.service';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  AbstractControl,
+  FormControl
+} from '@angular/forms';
+import { confirmPassword } from '../validators/password-confirm.validator';
 
 @Component({
   selector: 'signup',
@@ -9,12 +16,19 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class SignupComponent implements OnInit {
   form: FormGroup;
+  error: string = null;
 
   constructor(private fb: FormBuilder, private authService: AuthService) {
     this.form = this.fb.group({
-      email: ['', Validators.required],
-      password: ['', Validators.required],
-      confirm: ['', Validators.required]
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(6)
+      ]),
+      confirm: new FormControl('', [
+        Validators.required,
+        Validators.minLength(6)
+      ])
     });
   }
 
@@ -29,9 +43,37 @@ export class SignupComponent implements OnInit {
           console.log('User created successfully');
         },
         error => {
-          console.error(error);
+          this.error = error.error.message;
+          this.resetForm();
         }
       );
     }
+  }
+
+  closeErrorMessage() {
+    this.error = null;
+  }
+
+  resetForm() {
+    this.form.patchValue({
+      password: '',
+      confirm: ''
+    });
+  }
+
+  get email(): AbstractControl {
+    return this.form.get('email');
+  }
+
+  get password(): AbstractControl {
+    return this.form.get('password');
+  }
+
+  get confirm(): AbstractControl {
+    return this.form.get('confirm');
+  }
+
+  passwordsMatch(): boolean {
+    return this.form.get('password').value === this.form.get('confirm').value;
   }
 }
