@@ -40,7 +40,7 @@ export async function createUser(req: Request, res: Response) {
 
     console.log(SESSIONS);
 
-    res.cookie('SESSIONID', sessionId);
+    res.cookie('SESSIONID', session.sessionId, { httpOnly: true });
     return res.status(200).json({
       id: user.id,
       email: user.email
