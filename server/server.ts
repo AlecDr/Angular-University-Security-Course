@@ -6,10 +6,12 @@ import { readAllLessons } from './read-all-lessons.route';
 import { createUser } from './create.user.route';
 
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const app: Application = express();
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 const commandLineArgs = require('command-line-args');
 
