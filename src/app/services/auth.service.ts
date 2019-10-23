@@ -1,8 +1,9 @@
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, shareReplay, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, OnInit } from '@angular/core';
 import { User } from '../model/user';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 export const ANONYMOUS_USER: User = {
   id: undefined,
@@ -13,21 +14,35 @@ export const ANONYMOUS_USER: User = {
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient) {}
+  private userSubject: BehaviorSubject<User>;
 
-  private userSubject: BehaviorSubject<User> = new BehaviorSubject(
-    ANONYMOUS_USER
-  );
+  userObservable: Observable<User>;
+  isLoggedInObservable: Observable<boolean>;
+  isLoggedOutObservable: Observable<boolean>;
 
-  userObservable: Observable<User> = this.userSubject.asObservable();
+  constructor(private http: HttpClient) {
+    this.userSubject = new BehaviorSubject(ANONYMOUS_USER);
 
-  isLoggedInObservable: Observable<boolean> = this.userObservable.pipe(
-    map(user => !!user.id)
-  );
+    http.get<User>('/api/user').subscribe(user => {
+      user
+        ? this.userSubject.next(user)
+        : this.userSubject.next(ANONYMOUS_USER);
 
-  isLoggedOutObservable: Observable<boolean> = this.isLoggedInObservable.pipe(
-    map(isLoggedIn => !isLoggedIn)
-  );
+      console.log(user);
+    });
+
+    this.userObservable = this.userSubject.asObservable();
+    this.isLoggedInObservable = this.userObservable.pipe(
+      map(user => !!user.id)
+    );
+    this.isLoggedOutObservable = this.isLoggedInObservable.pipe(
+      map(isLoggedIn => !isLoggedIn)
+    );
+  }
+
+  private checkAuthStatus(): boolean {
+    return;
+  }
 
   signUp(email: string, password: string) {
     return this.http
