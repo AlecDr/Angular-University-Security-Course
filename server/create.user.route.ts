@@ -1,11 +1,14 @@
-import { USERS } from './database-data';
+import { Session } from './session';
+import { randomBytes } from './security.utils';
+import { USERS, SESSIONS } from './database-data';
 import { db } from './database';
 import { DbUser } from './db-user';
 import { Request, Response } from 'express';
 import * as crypto from 'crypto';
 import * as argon2 from 'argon2';
+import { createSession } from './create-session';
 
-export function createUser(req: Request, res: Response) {
+export async function createUser(req: Request, res: Response) {
   const { email, password }: { email: string; password: string } = req.body;
 
   if (email.length && password.length >= 6) {
@@ -31,8 +34,13 @@ export function createUser(req: Request, res: Response) {
         .digest('hex')
     );
 
-    console.log(USERS);
+    let sessionId = await randomBytes(32);
+    sessionId = sessionId.toString('hex');
+    const session = createSession(sessionId, user);
 
+    console.log(SESSIONS);
+
+    res.cookie('SESSIONID', session.sessionId, { httpOnly: true });
     return res.status(200).json({
       id: user.id,
       email: user.email

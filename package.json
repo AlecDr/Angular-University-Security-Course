@@ -44,10 +44,12 @@
     "http-server": "^0.10.0",
     "jsonwebtoken": "^7.4.2",
     "moment": "^2.18.1",
+    "momentjs": "^2.0.0",
     "nodemon": "^1.11.0",
     "password-validator": "^4.0.0",
     "rxjs": "6.3.3",
     "rxjs-compat": "^6.0.0-rc.0",
+    "util": "^0.12.1",
     "zone.js": "^0.8.14"
   },
   "devDependencies": {
