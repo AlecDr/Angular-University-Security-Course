@@ -8,7 +8,7 @@ import * as argon2 from 'argon2';
 export function createUser(req: Request, res: Response) {
   const { email, password }: { email: string; password: string } = req.body;
 
-  if (email.length && password.length > 6) {
+  if (email.length && password.length >= 6) {
     /**
      * Using Argon2
      */

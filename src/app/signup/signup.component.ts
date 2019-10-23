@@ -20,12 +20,15 @@ export class SignupComponent implements OnInit {
 
   constructor(private fb: FormBuilder, private authService: AuthService) {
     this.form = this.fb.group({
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [
+      email: new FormControl('test@gmail.com', [
+        Validators.required,
+        Validators.email
+      ]),
+      password: new FormControl('123123', [
         Validators.required,
         Validators.minLength(6)
       ]),
-      confirm: new FormControl('', [
+      confirm: new FormControl('123123', [
         Validators.required,
         Validators.minLength(6)
       ])
