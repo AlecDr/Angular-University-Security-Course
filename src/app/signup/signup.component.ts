@@ -8,6 +8,7 @@ import {
   FormControl
 } from '@angular/forms';
 import { confirmPassword } from '../validators/password-confirm.validator';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'signup',
@@ -18,7 +19,11 @@ export class SignupComponent implements OnInit {
   form: FormGroup;
   error: string = null;
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
     this.form = this.fb.group({
       email: new FormControl('test@gmail.com', [
         Validators.required,
@@ -43,7 +48,7 @@ export class SignupComponent implements OnInit {
     if (val.email && val.password && val.password == val.confirm) {
       this.authService.signUp(val.email, val.password).subscribe(
         () => {
-          console.log('User created successfully');
+          this.router.navigate(['lessons']);
         },
         error => {
           this.error = error.error.message;

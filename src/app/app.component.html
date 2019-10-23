@@ -19,7 +19,7 @@
       <li *ngIf="isLoggedOutObservable | async">
         <a routerLink="/login">Login</a>
       </li>
-      <li *ngIf="isLoggedInObservable | async">
+      <li (click)="logout()" *ngIf="isLoggedInObservable | async">
         <a>Logout</a>
       </li>
     </ng-container>

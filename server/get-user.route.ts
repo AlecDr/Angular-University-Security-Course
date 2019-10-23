@@ -1,12 +1,10 @@
 import { SESSIONS } from './database-data';
 import { Request, Response } from 'express';
+import { clearSession } from './clear-session';
 
 export function getUser(req: Request, res: Response) {
   const sessionId = req.cookies.SESSIONID;
   const session = SESSIONS[sessionId];
-
-  console.log(session);
-  console.log(sessionId);
 
   if (session) {
     if (session.isValid()) {
@@ -15,8 +13,10 @@ export function getUser(req: Request, res: Response) {
       return res.status(200).json({ email, id });
     } else {
       return res.status(401).json(null);
+      clearSession(sessionId);
     }
   } else {
+    clearSession(sessionId);
     return res.status(401).json(null);
   }
 }
