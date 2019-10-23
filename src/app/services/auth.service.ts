@@ -1,5 +1,5 @@
 import { Observable, BehaviorSubject } from 'rxjs';
-import { map, shareReplay, tap } from 'rxjs/operators';
+import { map, shareReplay, tap, filter } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnInit } from '@angular/core';
 import { User } from '../model/user';
@@ -14,39 +14,60 @@ export const ANONYMOUS_USER: User = {
   providedIn: 'root'
 })
 export class AuthService {
-  private userSubject: BehaviorSubject<User>;
+  private userSubject: BehaviorSubject<User> = new BehaviorSubject(undefined);
 
-  userObservable: Observable<User>;
-  isLoggedInObservable: Observable<boolean>;
-  isLoggedOutObservable: Observable<boolean>;
+  userObservable: Observable<User> = this.userSubject
+    .asObservable()
+    .pipe(filter(user => !!user));
+
+  isLoggedInObservable: Observable<boolean> = this.userObservable.pipe(
+    map(user => !!user.id)
+  );
+  isLoggedOutObservable: Observable<boolean> = this.isLoggedInObservable.pipe(
+    map(isLoggedIn => !isLoggedIn)
+  );
 
   constructor(private http: HttpClient) {
-    this.userSubject = new BehaviorSubject(ANONYMOUS_USER);
+    this.checkAuthStatus();
+  }
 
-    http.get<User>('/api/user').subscribe(user => {
-      user
-        ? this.userSubject.next(user)
-        : this.userSubject.next(ANONYMOUS_USER);
-
-      console.log(user);
-    });
-
-    this.userObservable = this.userSubject.asObservable();
-    this.isLoggedInObservable = this.userObservable.pipe(
-      map(user => !!user.id)
-    );
-    this.isLoggedOutObservable = this.isLoggedInObservable.pipe(
-      map(isLoggedIn => !isLoggedIn)
+  private checkAuthStatus(): void {
+    this.http.get<User>('/api/user').subscribe(
+      user => {
+        this.userSubject.next(user);
+      },
+      error => {
+        this.userSubject.next(ANONYMOUS_USER);
+      }
     );
   }
 
-  private checkAuthStatus(): boolean {
-    return;
+  logout(): Observable<any> {
+    return this.http.post('/api/logout', null).pipe(
+      shareReplay(),
+      tap(() => {
+        this.userSubject.next(ANONYMOUS_USER);
+      })
+    );
   }
 
   signUp(email: string, password: string) {
     return this.http
       .post<User>('/api/signup', {
+        email,
+        password
+      })
+      .pipe(
+        shareReplay(),
+        tap((user: User) => {
+          this.userSubject.next(user);
+        })
+      );
+  }
+
+  signIn(email: string, password: string) {
+    return this.http
+      .post<User>('/api/signin', {
         email,
         password
       })
