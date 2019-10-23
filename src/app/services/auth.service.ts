@@ -46,7 +46,6 @@ export class AuthService {
     return this.http.post('/api/logout', null).pipe(
       shareReplay(),
       tap(() => {
-        console.log('a');
         this.userSubject.next(ANONYMOUS_USER);
       })
     );
@@ -55,6 +54,20 @@ export class AuthService {
   signUp(email: string, password: string) {
     return this.http
       .post<User>('/api/signup', {
+        email,
+        password
+      })
+      .pipe(
+        shareReplay(),
+        tap((user: User) => {
+          this.userSubject.next(user);
+        })
+      );
+  }
+
+  signIn(email: string, password: string) {
+    return this.http
+      .post<User>('/api/signin', {
         email,
         password
       })

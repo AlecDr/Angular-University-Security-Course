@@ -20,7 +20,6 @@ export class LessonsComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.lessonsSubscription = this.lessonsService.loadAllLessons().subscribe(
       lessons => {
-        console.log(lessons);
         this.loading = false;
         this.lessons = lessons;
       },

@@ -12,8 +12,8 @@ export function getUser(req: Request, res: Response) {
 
       return res.status(200).json({ email, id });
     } else {
-      return res.status(401).json(null);
       clearSession(sessionId);
+      return res.status(401).json(null);
     }
   } else {
     clearSession(sessionId);
